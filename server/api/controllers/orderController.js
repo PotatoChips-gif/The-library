@@ -344,19 +344,3 @@ exports.getProcessingHistory = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// Search orders using different algorithms
-exports.searchOrders = async (req, res) => {
-  try {
-    const { searchTerm, searchType = 'orderNumber' } = req.query;
-    
-    if (!searchTerm) {
-      return res.status(400).json({ message: 'Search term is required' });
-    }
-    
-    const searchResult = await orderProcessor.searchOrder(searchTerm, searchType);
-    res.json(searchResult);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};

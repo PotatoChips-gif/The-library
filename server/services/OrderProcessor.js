@@ -1,8 +1,3 @@
-/**
- * Order Processing System using Queue and Stack Data Structures
- * Implements the core order processing pipeline with algorithmic sorting and searching
- */
-
 const Queue = require('../utils/dataStructures/Queue');
 const Stack = require('../utils/dataStructures/Stack');
 const SortingAlgorithms = require('../utils/algorithms/SortingAlgorithms');
@@ -13,13 +8,13 @@ class OrderProcessor {
     constructor() {
         // Queue for pending orders (FIFO)
         this.pendingOrders = new Queue();
-        
+
         // Stack for processing history (LIFO for undo operations)
         this.processingHistory = new Stack();
-        
+
         // Queue for completed orders
         this.completedOrders = new Queue();
-        
+
         // Processing statistics
         this.stats = {
             totalProcessed: 0,
@@ -50,7 +45,7 @@ class OrderProcessor {
 
             // Add to pending queue
             this.pendingOrders.enqueue(order);
-            
+
             // Log the action
             this.processingHistory.push({
                 action: 'ORDER_ADDED',
@@ -91,30 +86,30 @@ class OrderProcessor {
 
         const startTime = performance.now();
         const order = this.pendingOrders.dequeue();
-        
+
         try {
             // Step 1: Validate order
             order.processingSteps.push('Order validation started');
             await this.validateOrder(order);
-            
+
             // Step 2: Check book availability
             order.processingSteps.push('Book availability check');
             await this.checkBookAvailability(order);
-            
+
             // Step 3: Sort books in order using different algorithms
             order.processingSteps.push('Sorting books in order');
             const sortedBooks = await this.sortBooksInOrder(order);
             order.books = sortedBooks.sortedArray;
             order.sortingAlgorithm = sortedBooks.algorithm;
-            
+
             // Step 4: Calculate total and update inventory
             order.processingSteps.push('Calculating total and updating inventory');
             await this.calculateTotalAndUpdateInventory(order);
-            
+
             // Step 5: Update order status
             order.status = 'Processing';
             order.processedAt = new Date();
-            
+
             // Add to processing history
             this.processingHistory.push({
                 action: 'ORDER_PROCESSED',
@@ -126,7 +121,7 @@ class OrderProcessor {
 
             // Move to completed queue
             this.completedOrders.enqueue(order);
-            
+
             // Update statistics
             this.updateProcessingStats(performance.now() - startTime, order.sortingAlgorithm);
 
@@ -143,7 +138,7 @@ class OrderProcessor {
             // If processing fails, add back to queue or move to error handling
             order.status = 'Error';
             order.error = error.message;
-            
+
             this.processingHistory.push({
                 action: 'ORDER_ERROR',
                 orderNumber: order.orderNumber,
@@ -169,7 +164,7 @@ class OrderProcessor {
      */
     async searchOrder(searchTerm, searchType = 'orderNumber') {
         const startTime = performance.now();
-        
+
         // Combine all orders for searching
         const allOrders = [
             ...this.pendingOrders.toArray(),
@@ -283,19 +278,19 @@ class OrderProcessor {
     getProcessingHistory(count = 10) {
         const history = [];
         const tempStack = new Stack();
-        
+
         // Get last N items from history stack
         for (let i = 0; i < count && !this.processingHistory.isEmpty(); i++) {
             const item = this.processingHistory.pop();
             history.push(item);
             tempStack.push(item);
         }
-        
+
         // Restore the history stack
         while (!tempStack.isEmpty()) {
             this.processingHistory.push(tempStack.pop());
         }
-        
+
         return history;
     }
 
@@ -312,7 +307,7 @@ class OrderProcessor {
         }
 
         const lastOperation = this.processingHistory.pop();
-        
+
         // Handle different types of undo operations
         switch (lastOperation.action) {
             case 'ORDER_PROCESSED':
@@ -365,8 +360,8 @@ class OrderProcessor {
 
     updateProcessingStats(processingTime, algorithm) {
         this.stats.totalProcessed++;
-        this.stats.averageProcessingTime = 
-            (this.stats.averageProcessingTime * (this.stats.totalProcessed - 1) + processingTime) / 
+        this.stats.averageProcessingTime =
+            (this.stats.averageProcessingTime * (this.stats.totalProcessed - 1) + processingTime) /
             this.stats.totalProcessed;
     }
 }
